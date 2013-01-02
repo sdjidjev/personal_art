@@ -35,9 +35,8 @@ console.log "Running server in mode: " + app.settings.env
 app.configure ->
 	app.use express.compress()
 	app.set "views", __dirname + "/views"
-
 	app.set "view engine", "jade"
-	app.use express.bodyParser()
+	app.use express.bodyParser(uploadDir: __dirname + "/static")
 	app.use stylus.middleware(
 		src: __dirname + "/views" # .styl files are located in `views/css`
 		dest: __dirname + "/static" # .styl resources are compiled `static/css/*.css`
@@ -60,8 +59,31 @@ app.get "/", (req, res) ->
 	res.render "index.jade"
 app.get "/resize/:width/:height/:image", (req, res) ->
 	res.set('Content-Type', 'image/jpeg')
-	gm(__dirname + "/static/images/" + req.params.image).resize(req.params.width, req.params.height).stream streamOut = (err, stdout, stderr) ->
-		stdout.pipe res
+	gm(__dirname + "/static/images/" + req.params.image).size (err, size) ->
+		ratioW = size.width/req.params.width
+		ratioH = size.height/req.params.height
+		ratio = 0.0
+		posX = 0
+		posY = 0
+		if ratioW > ratioH
+			ratio = ratioH
+			posX = (size.width-(req.params.width*ratio))/2
+		else
+			ratio = ratioW
+			posY = (size.height-(req.params.height*ratio))/2
+		gm(__dirname + "/static/images/" + req.params.image).crop(req.params.width*ratio, req.params.height*ratio, posX, posY).resize(req.params.width, req.params.height).stream streamOut = (err, stdout, stderr) ->
+			stdout.pipe res
+		
+
+app.post "/file-upload", (req, res) ->
+  tmp_path = req.files.thumbnail.path # get the temporary location of the file
+  target_path = __dirname + "/static/images/" + req.files.thumbnail.name # set where the file should actually exists - in this case it is in the "images" directory
+  fs.rename tmp_path, target_path, (err) -> # move the file from the temporary location to the intended location
+    throw err  if err
+    fs.unlink tmp_path, -> # delete the temporary file, so that the explicitly set temporary upload dir does not get filled with unwanted files
+      throw err  if err
+      res.send "File uploaded to: " + target_path + " - " + req.files.thumbnail.size + " bytes"
+
 
 server.listen expressPort
 console.log "Express on port: " + expressPort
