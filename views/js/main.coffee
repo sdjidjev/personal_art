@@ -19,7 +19,7 @@ overlayImageOff = () ->
 
 letter = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
-gridSize = 200
+gridSize = 250
 gridMargin = 2
 shapes = [
 			{width: gridSize*2-gridMargin*2, height: gridSize*2-gridMargin*2},
@@ -42,7 +42,7 @@ $(document).ready ->
 		$("#artContainer").masonry(
 			itemSelector: ".box"
 			columnWidth: 1
-			isAnimated: true
+			#isAnimated: true
 		).imagesLoaded ->
 			$("#artContainer").masonry("reload").css(
 				visibility: "visible"
