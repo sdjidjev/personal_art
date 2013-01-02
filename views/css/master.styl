@@ -1,7 +1,7 @@
 @import 'nib'
 
 body
-	background #444
+	background #333
 
 #artContainer
 	visibility hidden
@@ -12,4 +12,24 @@ body
 .box
 	float left
 	margin 2px
-	padding 2px
+	border-radius 5px
+
+#overlay
+	z-index 100
+	position fixed
+	left 0
+	top 0
+	width 100%
+	height 100%
+	display none
+
+#overlayBackground
+	width 100%
+	height 100%
+	background #000
+	opacity 0.8
+	position absolute
+
+#overlayPic
+	position absolute
+	border-radius 10px

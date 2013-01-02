@@ -57,7 +57,7 @@ app.configure ->
 #Routes
 app.get "/", (req, res) ->
 	res.render "index.jade"
-app.get "/resize/:width/:height/:image", (req, res) ->
+app.get "/:command/:width/:height/:image", (req, res) ->
 	res.set('Content-Type', 'image/jpeg')
 	gm(__dirname + "/static/images/" + req.params.image).size (err, size) ->
 		ratioW = size.width/req.params.width
@@ -71,8 +71,23 @@ app.get "/resize/:width/:height/:image", (req, res) ->
 		else
 			ratio = ratioW
 			posY = (size.height-(req.params.height*ratio))/2
-		gm(__dirname + "/static/images/" + req.params.image).crop(req.params.width*ratio, req.params.height*ratio, posX, posY).resize(req.params.width, req.params.height).stream streamOut = (err, stdout, stderr) ->
-			stdout.pipe res
+		if req.params.command == "crop"
+			gm(__dirname + "/static/images/" + req.params.image)
+				.crop(req.params.width*ratio, req.params.height*ratio, posX, posY)
+				.resize(req.params.width, req.params.height)
+				.stream streamOut = (err, stdout, stderr) ->
+					stdout.pipe res
+		else if req.params.command == "resize"
+			if ratioW < 1.0 && ratioH < 1.0
+				gm(__dirname + "/static/images/" + req.params.image)
+					.stream streamOut = (err, stdout, stderr) ->
+						stdout.pipe res
+			else
+				gm(__dirname + "/static/images/" + req.params.image)
+					.resize(req.params.width, req.params.height)
+					.stream streamOut = (err, stdout, stderr) ->
+						stdout.pipe res
+		
 		
 
 app.post "/file-upload", (req, res) ->
