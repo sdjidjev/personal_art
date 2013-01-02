@@ -7,7 +7,6 @@ while i < 50
 	height = getRandomInt(100, 200)
 	$("#artContainer").append "<img class='box' width='"+width+"' height='"+height+"' src='http://placekitten.com/" + width + "/" + height + "'>"
 	i++
-$("#artContainer").append "<img class='box' width='50' height='50' src='/resize/a.jpg'>"
 
 $(document).ready ->
 	$ ->
