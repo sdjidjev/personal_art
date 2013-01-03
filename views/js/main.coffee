@@ -1,4 +1,4 @@
-socket = io.connect('http://localhost:8090')
+socket = io.connect('/')
 
 getRandomInt = (min, max) ->
 	Math.floor(Math.random() * (max - min + 1)) + min
