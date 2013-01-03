@@ -69,8 +69,8 @@ nearBottom = () ->
 		console.log images
 		while i < loopArray.length
 			addImage(loopArray[i].width, loopArray[i].height, loopArray[i].path)
+			refreshMasonry()
 			i++
-		refreshMasonry()
 
 randomShape = () ->
 	totalp = 0
@@ -103,14 +103,13 @@ $(document).ready ->
 			height = size.height
 			if totalImages < numToLoad
 				addImage(width, height, data.path)
-			totalImages++
-			if totalImages == numToLoad
 				refreshMasonry()
 			if totalImages >= numToLoad
 				images.push
 					width: width
 					height: height
 					path: data.path
+			totalImages++
 
 		$(window).scroll ->
 			if $(window).scrollTop() + $(window).height() > $(document).height() - 100
