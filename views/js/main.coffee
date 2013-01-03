@@ -69,8 +69,8 @@ nearBottom = () ->
 		console.log images
 		while i < loopArray.length
 			addImage(loopArray[i].width, loopArray[i].height, loopArray[i].path)
-			refreshMasonry()
 			i++
+		refreshMasonry()
 
 randomShape = () ->
 	totalp = 0
