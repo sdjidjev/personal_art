@@ -16,6 +16,9 @@ connectCoffeescript = require("connect-coffee-script")
 fs = require('fs')
 gm = require("gm")
 
+#readdirp for recursive file stuffs
+readdirp = require('readdirp')
+
 #start express
 express = require("express")
 app = express()
@@ -57,38 +60,37 @@ app.configure ->
 #Routes
 app.get "/", (req, res) ->
 	res.render "index.jade"
-app.get "/:command/:width/:height/:image", (req, res) ->
+app.get "/:command/:width/:height/:image(*)", (req, res) ->
 	res.set('Content-Type', 'image/jpeg')
 	gm(__dirname + "/static/images/" + req.params.image).size (err, size) ->
-		ratioW = size.width/req.params.width
-		ratioH = size.height/req.params.height
-		ratio = 0.0
-		posX = 0
-		posY = 0
-		if ratioW > ratioH
-			ratio = ratioH
-			posX = (size.width-(req.params.width*ratio))/2
-		else
-			ratio = ratioW
-			posY = (size.height-(req.params.height*ratio))/2
-		if req.params.command == "crop"
-			gm(__dirname + "/static/images/" + req.params.image)
-				.crop(req.params.width*ratio, req.params.height*ratio, posX, posY)
-				.resize(req.params.width, req.params.height)
-				.stream streamOut = (err, stdout, stderr) ->
-					stdout.pipe res
-		else if req.params.command == "resize"
-			if ratioW < 1.0 && ratioH < 1.0
-				gm(__dirname + "/static/images/" + req.params.image)
-					.stream streamOut = (err, stdout, stderr) ->
-						stdout.pipe res
+		if size
+			ratioW = size.width/req.params.width
+			ratioH = size.height/req.params.height
+			ratio = 0.0
+			posX = 0
+			posY = 0
+			if ratioW > ratioH
+				ratio = ratioH
+				posX = (size.width-(req.params.width*ratio))/2
 			else
+				ratio = ratioW
+				posY = (size.height-(req.params.height*ratio))/2
+			if req.params.command == "crop"
 				gm(__dirname + "/static/images/" + req.params.image)
+					.crop(req.params.width*ratio, req.params.height*ratio, posX, posY)
 					.resize(req.params.width, req.params.height)
 					.stream streamOut = (err, stdout, stderr) ->
 						stdout.pipe res
-		
-		
+			else if req.params.command == "resize"
+				if ratioW < 1.0 && ratioH < 1.0
+					gm(__dirname + "/static/images/" + req.params.image)
+						.stream streamOut = (err, stdout, stderr) ->
+							stdout.pipe res
+				else
+					gm(__dirname + "/static/images/" + req.params.image)
+						.resize(req.params.width, req.params.height)
+						.stream streamOut = (err, stdout, stderr) ->
+							stdout.pipe res
 
 app.post "/file-upload", (req, res) ->
   tmp_path = req.files.thumbnail.path # get the temporary location of the file
@@ -99,6 +101,14 @@ app.post "/file-upload", (req, res) ->
       throw err  if err
       res.send "File uploaded to: " + target_path + " - " + req.files.thumbnail.size + " bytes"
 
+io.sockets.on "connection", (socket) ->
+	socket.on "getImageList", (data) ->
+		readdirp(
+			root: __dirname + "/static/images"
+		).on "data", (entry) ->
+			socket.emit "sendImage",
+				name: entry.name
+				path: entry.path
 
 server.listen expressPort
 console.log "Express on port: " + expressPort
