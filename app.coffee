@@ -103,12 +103,15 @@ app.post "/file-upload", (req, res) ->
 
 io.sockets.on "connection", (socket) ->
 	socket.on "getImageList", (data) ->
+		total = 0
 		readdirp(
 			root: __dirname + "/static/images"
 		).on "data", (entry) ->
-			socket.emit "sendImage",
-				name: entry.name
-				path: entry.path
+			if total < data.num
+				total++
+				socket.emit "sendImage",
+					name: entry.name
+					path: entry.path
 
 server.listen expressPort
 console.log "Express on port: " + expressPort
