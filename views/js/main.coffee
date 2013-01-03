@@ -48,9 +48,7 @@ refreshMasonry = () ->
 		columnWidth: gridSize
 		isAnimated: !Modernizr.csstransitions
 	).imagesLoaded ->
-		$("#artContainer").masonry("reload").css(
-			visibility: "visible"
-		)
+		$("#artContainer").masonry("reload")
 
 intervalID = setInterval(->
 	time += 500
