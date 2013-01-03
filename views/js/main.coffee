@@ -6,6 +6,20 @@ images = []
 time = 0
 lastcall = -1
 
+gridSize = 250
+gridMargin = 2
+shapes = [
+			{width: gridSize*2-gridMargin*2, height: gridSize*2-gridMargin*2, p: 5}
+			{width: gridSize-gridMargin*2, height: gridSize*2-gridMargin*2, p: 10},
+			{width: gridSize*2-gridMargin*2, height: gridSize-gridMargin*2, p: 10},
+			{width: gridSize-gridMargin*2, height: gridSize-gridMargin*2, p: 40},
+			{width: gridSize*3-gridMargin*2, height: gridSize-gridMargin*2, p: 2},
+			{width: gridSize-gridMargin*2, height: gridSize*3-gridMargin*2, p: 2},
+			{width: gridSize*3-gridMargin*2, height: gridSize*2-gridMargin*2, p: 1},
+			{width: gridSize*2-gridMargin*2, height: gridSize*3-gridMargin*2, p: 1},
+			{width: gridSize*3-gridMargin*2, height: gridSize*3-gridMargin*2, p: 1}
+		]
+
 getRandomInt = (min, max) ->
 	Math.floor(Math.random() * (max - min + 1)) + min
 
@@ -31,7 +45,7 @@ addImage = (width, height, path) ->
 refreshMasonry = () ->
 	$("#artContainer").masonry(
 		itemSelector: ".box"
-		columnWidth: 1
+		columnWidth: gridSize
 		isAnimated: !Modernizr.csstransitions
 	).imagesLoaded ->
 		$("#artContainer").masonry("reload").css(
@@ -59,20 +73,6 @@ nearBottom = () ->
 			addImage(loopArray[i].width, loopArray[i].height, loopArray[i].path)
 			i++
 		refreshMasonry()
-
-gridSize = 250
-gridMargin = 2
-shapes = [
-			{width: gridSize*2-gridMargin*2, height: gridSize*2-gridMargin*2, p: 10}
-			{width: gridSize-gridMargin*2, height: gridSize*2-gridMargin*2, p: 10},
-			{width: gridSize*2-gridMargin*2, height: gridSize-gridMargin*2, p: 7},
-			{width: gridSize-gridMargin*2, height: gridSize-gridMargin*2, p: 40},
-			{width: gridSize*3-gridMargin*2, height: gridSize-gridMargin*2, p: 2},
-			{width: gridSize-gridMargin*2, height: gridSize*3-gridMargin*2, p: 2},
-			{width: gridSize*3-gridMargin*2, height: gridSize*2-gridMargin*2, p: 1},
-			{width: gridSize*2-gridMargin*2, height: gridSize*3-gridMargin*2, p: 1},
-			{width: gridSize*3-gridMargin*2, height: gridSize*3-gridMargin*2, p: 1}
-		]
 
 randomShape = () ->
 	totalp = 0
