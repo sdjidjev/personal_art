@@ -31,7 +31,7 @@ resizeOverlayImage = () ->
 
 overlayImage = (img) ->
 	sizeRatio = 0.8
-	$("#overlayPic").attr("src", "/resize/"+$(window).width()*sizeRatio+"/"+$(window).height()*sizeRatio+"/"+img)
+	$("#overlayPic").attr("src", "/resize/"+parseInt($(window).width()*sizeRatio)+"/"+parseInt($(window).height()*sizeRatio)+"/"+img)
 	$("#overlay").waitForImages ->
 		$("#overlay").fadeIn(500)
 		resizeOverlayImage()

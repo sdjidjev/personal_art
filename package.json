@@ -21,7 +21,8 @@
 		"connect-coffee-script" : "0.0.x",
 		"coffee-script" : "1.4.x",
 		"gm"		:	"1.8.x",
-		"readdirp"	:	"0.2.x"
+		"readdirp"	:	"0.2.x",
+		"mkdirp"	:	"0.3.x"
 	}, 
 	"engines": {
 		"node": ">=0.8"

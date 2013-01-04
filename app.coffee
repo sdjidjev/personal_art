@@ -13,11 +13,14 @@ coffeeScript = require("coffee-script")
 connectCoffeescript = require("connect-coffee-script")
 
 #require gm
-fs = require('fs')
+fs = require("fs")
 gm = require("gm")
 
 #readdirp for recursive file stuffs
-readdirp = require('readdirp')
+readdirp = require("readdirp")
+
+#mkdir -p in node.js
+mkdirp = require("mkdirp")
 
 #start express
 express = require("express")
@@ -62,7 +65,7 @@ app.get "/", (req, res) ->
 	res.render "index.jade"
 app.get "/:command/:width/:height/:image(*)", (req, res) ->
 	res.set('Content-Type', 'image/jpeg')
-	gm(__dirname + "/static/images/" + req.params.image).size (err, size) ->
+	gm(__dirname + "/static/images/pictures/" + req.params.image).size (err, size) ->
 		if size
 			ratioW = size.width/req.params.width
 			ratioH = size.height/req.params.height
@@ -76,21 +79,45 @@ app.get "/:command/:width/:height/:image(*)", (req, res) ->
 				ratio = ratioW
 				posY = (size.height-(req.params.height*ratio))/2
 			if req.params.command == "crop"
-				gm(__dirname + "/static/images/" + req.params.image)
-					.crop(req.params.width*ratio, req.params.height*ratio, posX, posY)
-					.resize(req.params.width, req.params.height)
-					.stream streamOut = (err, stdout, stderr) ->
-						stdout.pipe res
+				thumbnail = __dirname + "/static/images/thumbnails/" + req.params.image + req.params.width + "x" + req.params.height + "crop"
+				thumbnailFolder = thumbnail.substring(0, thumbnail.lastIndexOf("/"));
+				fs.exists thumbnail, (exists) ->
+					if exists
+						readStream = fs.createReadStream thumbnail
+						readStream.on "open", ->
+								readStream.pipe res
+					else
+						mkdirp thumbnailFolder, (err) ->
+							gm(__dirname + "/static/images/pictures/" + req.params.image)
+								.crop(req.params.width*ratio, req.params.height*ratio, posX, posY)
+								.resize(req.params.width, req.params.height)
+								.stream streamOut = (err, stdout, stderr) ->
+									writeStream = fs.createWriteStream thumbnail
+									stdout.pipe writeStream
+									stdout.pipe res
 			else if req.params.command == "resize"
-				if ratioW < 1.0 && ratioH < 1.0
-					gm(__dirname + "/static/images/" + req.params.image)
-						.stream streamOut = (err, stdout, stderr) ->
-							stdout.pipe res
-				else
-					gm(__dirname + "/static/images/" + req.params.image)
-						.resize(req.params.width, req.params.height)
-						.stream streamOut = (err, stdout, stderr) ->
-							stdout.pipe res
+				thumbnail = __dirname + "/static/images/thumbnails/" + req.params.image + req.params.width + "x" + req.params.height + "resize"
+				thumbnailFolder = thumbnail.substring(0, thumbnail.lastIndexOf("/"));
+				fs.exists thumbnail, (exists) ->
+					if exists
+						readStream = fs.createReadStream thumbnail
+						readStream.on "open", ->
+								readStream.pipe res
+					else
+						mkdirp thumbnailFolder, (err) ->
+							if ratioW < 1.0 && ratioH < 1.0
+								gm(__dirname + "/static/images/pictures/" + req.params.image)
+									.stream streamOut = (err, stdout, stderr) ->
+										writeStream = fs.createWriteStream thumbnail
+										stdout.pipe writeStream
+										stdout.pipe res
+							else
+								gm(__dirname + "/static/images/pictures/" + req.params.image)
+									.resize(req.params.width, req.params.height)
+									.stream streamOut = (err, stdout, stderr) ->
+										writeStream = fs.createWriteStream thumbnail
+										stdout.pipe writeStream
+										stdout.pipe res
 
 app.post "/file-upload", (req, res) ->
   tmp_path = req.files.thumbnail.path # get the temporary location of the file
@@ -105,13 +132,14 @@ io.sockets.on "connection", (socket) ->
 	socket.on "getImageList", (data) ->
 		total = 0
 		readdirp(
-			root: __dirname + "/static/images"
+			root: __dirname + "/static/images/pictures"
 		).on "data", (entry) ->
 			if total < data.num
 				total++
 				socket.emit "sendImage",
 					name: entry.name
 					path: entry.path
+					dir: entry.fullParentDir
 
 server.listen expressPort
 console.log "Express on port: " + expressPort
