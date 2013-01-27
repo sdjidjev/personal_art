@@ -5,10 +5,10 @@
 	"author": "DungFu <freddiemeyer@gmail.com>",
 	"description": "Website for art.fmeyer.com",
 	"scripts": {
-		"test"	:	"coffee app.coffee",
-		"start"	:	"forever -l logfile-art.log -a start -c coffee app.coffee",
-		"stop"	:	"forever -a stop -c coffee app.coffee",
-		"list"	:	"forever list"
+		"start"			:	"coffee app.coffee",
+		"forever-start"	:	"forever -l logfile-art.log -a start -c coffee app.coffee",
+		"forever-stop"	:	"forever -a stop -c coffee app.coffee",
+		"forever-list"	:	"forever list"
 	},
 	"repository": {
 		"type": "git",
