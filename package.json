@@ -5,7 +5,9 @@
 	"author": "DungFu <freddiemeyer@gmail.com>",
 	"description": "Website for art.fmeyer.com",
 	"scripts": {
-		"start": "coffee app.coffee"
+		"test"	:	"coffee app.coffee",
+		"start"	:	"forever -l ./logfile-art.log -a start -c coffee app.coffee",
+		"stop"	:	"forever -a stop -c coffee app.coffee"
 	},
 	"repository": {
 		"type": "git",
